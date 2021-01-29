@@ -8,7 +8,7 @@ A GAS web-app to manage pfSense FW rules from a Google Sheets spreadsheet
 - [how it works](#how-it-works)
 - [about Google Apps Script, permissions, and security](#about-google-apps-script-permissions-and-security)
 - [self-publish](#self-publish)
-- [disclaimer and warnings](#disclaimer-and-warings)
+- [disclaimer and warnings](#disclaimer-and-warnings)
 - [contact, support, help](#contact-support-help)
 
 ## overview
