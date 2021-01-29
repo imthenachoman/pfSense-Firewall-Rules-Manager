@@ -270,6 +270,7 @@
                         {
                             var logHTML = '<textarea disabled="true">' + ret.data + '</textarea>';
                             logHTML += '<br />';
+                            logHTML += '<br />';
                             logHTML += '<a href="#" onclick="copyTextarea(this); return false">copy to clipboard</a>';
                             addToLog(logTable, logHTML);
                         }
@@ -346,22 +347,9 @@
                         addToLog(logTable, "...done");
                         var logHTML = '<textarea disabled="true">' + ret.xml + '</textarea>';
                         logHTML += '<br />';
+                        logHTML += '<br />';
                         logHTML += '<a href="#" onclick="copyTextarea(this); return false">copy to clipboard</a>';
                         addToLog(logTable, logHTML);
-                        /*
-                        addToLog(logTable, "...done");
-                        if(formElements.destinationType.value == "googleSheet")
-                        {
-                            addToLog(logTable, '<a href="' + ret.data + '" target="_blank">' + ret.data + '</a>');
-                        }
-                        else
-                        {
-                            var logHTML = '<textarea disabled="true">' + ret.data + '</textarea>';
-                            logHTML += '<br />';
-                            logHTML += '<a href="#" onclick="copyTextarea(this); return false">copy to clipboard</a>';
-                            addToLog(logTable, logHTML);
-                        }
-                        */
                     }
                 }).exportXML(formObject);
             }

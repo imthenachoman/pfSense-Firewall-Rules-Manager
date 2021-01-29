@@ -2,6 +2,7 @@ const RULE_PROPERTY_XML_TYPE = {
     BOOL: "bool",
     VALUE: "value",
     CHILD: "child",
+    CDATA: "cdata",
     CUSTOM: "custom"
 }
 
@@ -59,7 +60,10 @@ const _rulePropertyXMLSchema_ = {
         "path": "log",
         "type": RULE_PROPERTY_XML_TYPE.BOOL,
     },
-    "Description": "descr",
+    "Description": {
+        "path": "descr",
+        "type": RULE_PROPERTY_XML_TYPE.CDATA,
+    },
     "Tracking ID": "tracker",
     "Associated Rule ID": "associated-rule-id",
     "ID": "id",
@@ -70,7 +74,10 @@ const _rulePropertyXMLSchema_ = {
     "Max Source Connections": "max-src-conn",
     "Max Source States": "max-src-states",
     "State Timeout": "statetimeout",
-    "State Type": "statetype",
+    "State Type": {
+        "path": "statetype",
+        "type": RULE_PROPERTY_XML_TYPE.CDATA,
+    },
 }
 
 const _allFields_ = Object.keys(_rulePropertyXMLSchema_);
@@ -174,6 +181,10 @@ function _xmlElementSet_(ruleSchema, parentElement, value, valueLookup)
                 var child = XmlService.createElement(value);
                 element.addContent(child);
             }
+            break;
+        case "cdata":
+            var child = XmlService.createCdata(value);
+            element.addContent(child);
             break;
         default:
             element.setText(value);

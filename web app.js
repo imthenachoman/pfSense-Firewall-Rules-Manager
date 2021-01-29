@@ -222,6 +222,8 @@ function exportXML(formObject)
     {
         var row = data[i];
         
+        if(!row[headerRow.indexOf("Interface")]) continue;
+
         var xmlRule = XmlService.createElement("rule");
         xmlRoot.addContent(xmlRule);
 
