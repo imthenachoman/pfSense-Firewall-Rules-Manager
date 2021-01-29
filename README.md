@@ -27,7 +27,10 @@ The app lets you:
 
 ## screenshots
 
-WIP
+
+![001](/screenshots/001.png)
+![002](/screenshots/002.png)
+![003](/screenshots/003.png)
 
 ## to use
 
@@ -49,7 +52,7 @@ For those who are not familiar with [Google Apps Script](https://developers.goog
 
 - Google Apps Script web-apps can be published in many ways
 - you can read more about this at https://developers.google.com/apps-script/guides/web#permissions
-- mine is published with:
+- mine is published with ([screenshot](/screenshots/gas-published-settings.png)):
   - **Execute the app as**: `User accessing the web app`
   - **Who has access to the app**: `Anyone`
 - this means that when you go to the app, it will run under **your Google account**
