@@ -5,10 +5,10 @@ A GAS web-app to manage pfSense FW rules from a Google Sheets spreadsheet
 - [overview](#overview)
 - [screenshots](#screenshots)
 - [to use](#to-use)
-- [about the app](#about-the-app)
+- [how it works](#how-it-works)
 - [about Google Apps Script, permissions, and security](#about-google-apps-script-permissions-and-security)
 - [self-publish](#self-publish)
-- [disclaimer](#disclaimer)
+- [disclaimer and warnings](#disclaimer-and-warings)
 - [contact, support, help](#contact-support-help)
 
 ## overview
@@ -39,10 +39,9 @@ You have two options:
 - you can use the one I published at https://script.google.com/macros/s/AKfycby0nVfwX-AKKwhydWfojp0AxlL5zUHdKbRs0iCEZAvziDao8Iou/exec (see [about Google Apps Script, permissions, and security](#about-google-apps-script-permissions-and-security))
 - [self-publish your own copy](#self-publish)
 
-## about the app
+## how it works
 
 - the app parses pfSense's **Backup & Restore** XML file into a table
-- it is rather dumb in that it is not aware of your pfSense configuration, like what VLANs you have, what your IPs are, etc...; it only knows what it sees in the XML file
 - I recommend exporting your configuration from pfSense and then importing them with this app to see how the data is stored
 - then you can copy data from other rows to create new firewall rules
 
@@ -66,9 +65,11 @@ For those who are not familiar with [Google Apps Script](https://developers.goog
 
 WIP
 
-## disclaimer
+## disclaimer and warnings
 
-Please use at your own discretion. I am not responsible for anything resulting from this app.
+- Please use at your own discretion. This app comes with no warranty. I am not responsible for anything resulting from this app.
+- it is rather dumb in that it is not aware of your pfSense configuration, like what VLANs you have, what your IPs are, etc...; it only knows what it sees in the XML file
+- not all pfSense firewall rule settings are included (...yet)
 
 **Remember to make a backup of your pfSense configuration.**
 
