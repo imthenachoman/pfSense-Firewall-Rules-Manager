@@ -1,0 +1,22 @@
+{
+    // See https://go.microsoft.com/fwlink/?LinkId=733558
+    // for the documentation about the tasks.json format
+    "version": "2.0.0",
+    "tasks": [
+        {
+            "label": "push to GAS",
+            "type": "shell",
+            "command": "clasp push",
+            "group": {
+                "kind": "build",
+                "isDefault": true
+            }
+        },
+        {
+            "label": "deploy",
+            "type": "shell",
+            "command": "clasp deploy -i AKfycby0nVfwX-AKKwhydWfojp0AxlL5zUHdKbRs0iCEZAvziDao8Iou",
+            "problemMatcher": []
+        }
+    ]
+}

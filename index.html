@@ -1,0 +1,495 @@
+<!DOCTYPE html>
+<html>
+
+    <head>
+        <base target="_top">
+        <style>
+            #menuBar {
+                width: 100%;
+                text-align: center;
+            }
+
+            #menuBar td {
+                width: 50%;
+            }
+
+            #menuBar input {
+                width: 100%;
+            }
+
+            table.wideTable {
+                width: 100%;
+                border: 1px solid black;
+                border-collapse: collapse;
+            }
+
+            table table {
+                border-collapse: collapse;
+            }
+
+            table.wideTable th {
+                white-space: nowrap;
+                padding: 5px;
+                text-align: right;
+                border: 1px solid black;
+                border-collapse: collapse;
+            }
+
+            table.wideTable td {
+                width: 100%;
+                padding: 5px;
+                border: 1px solid black;
+                border-collapse: collapse;
+            }
+
+            textarea,
+            input[type='text'] {
+                background-color: #ffffdd;
+                width: 100%;
+                -webkit-box-sizing: border-box;
+                -moz-box-sizing: border-box;
+                box-sizing: border-box;
+                border: 1px solid black;
+                padding: 5px;
+            }
+
+            select {
+                background-color: #ffffdd;
+                border: 1px solid black;
+                padding: 5px;
+            }
+
+            textarea {
+                height: 200px;
+            }
+
+            .center {
+                text-align: center;
+            }
+
+            .toggleRow {
+                /* background-color: black; */
+                display: none;
+            }
+
+            /* .toggleRow td * {
+                visibility: hidden;
+                display: none;
+            } */
+
+            table.show_fromSource_xmlFile #tableRow_fromSource_xmlFile.toggleRow,
+            table.show_fromSource_xmlInput #tableRow_fromSource_xmlInput.toggleRow,
+            table.show_destinationType_googleSheet #tableRow_destinationType_googleSheet.toggleRow,
+            table.show_destinationType_googleSheet.show_googleSheetType_existing #tableRow_googleSheetType_existing.toggleRow,
+            table.show_fromSource_googleSheet #tableRow_fromSource_googleSheet.toggleRow,
+            table.show_fromSource_csvFile #tableRow_fromSource_csvFile.toggleRow,
+            table.show_fromSource_csvInput #tableRow_fromSource_csvInput.toggleRow {
+                /* background-color: inherit; */
+                display: table-row;
+            }
+
+            /* table.show_fromSource_xmlFile #tableRow_fromSource_xmlFile.toggleRow td *,
+            table.show_fromSource_xmlInput #tableRow_fromSource_xmlInput.toggleRow td *,
+            table.show_destinationType_googleSheet #tableRow_destinationType_googleSheet.toggleRow td *,
+            table.show_destinationType_googleSheet.show_googleSheetType_existing #tableRow_googleSheetType_existing.toggleRow td *,
+            table.show_fromSource_googleSheet #tableRow_fromSource_googleSheet.toggleRow td *,
+            table.show_fromSource_csvFile #tableRow_fromSource_csvFile.toggleRow td *,
+            table.show_fromSource_csvInput #tableRow_fromSource_csvInput.toggleRow td * {
+                visibility: inherit;
+                display: inherit; 
+            } */
+
+            table td.log table {
+                font-size: 8pt;
+                font-family: 'Courier New', Courier, monospace;
+                border: 1px solid black;
+                background-color: #dddddd;
+                width: 100%;
+                border-collapse: collapse;
+            }
+
+            table td.log table + table
+            {
+                margin-top: 20px;
+            }
+
+            table td.log table td {
+                width: 0;
+                white-space: nowrap;
+            }
+
+            table td.log table td+td {
+                width: 100%;
+            }
+
+            #XMLTo,
+            #toXML {
+                display: none;
+            }
+
+            body.show_section_XMLTo #XMLTo,
+            body.show_section_toXML #toXML {
+                display: inherit;
+            }
+
+            tr.error {
+                color: red;
+            }
+
+            input[type='button'],
+            input[type='submit']
+            {
+                padding: 5px;
+                background-color: #ddffdd;
+                border: 1px solid black;
+                cursor: pointer;
+            }
+
+            
+        </style>
+        <script type="text/javascript">
+            // show a section and hide the rest
+            function showSection(button)
+            {
+                var body = document.body;
+                var showClassPrefix = "show_section_";
+                var showClass = showClassPrefix + button.name;
+
+                // hide all the other sections
+                body.className = body.className.replace(new RegExp(showClassPrefix + "[^\\s]+", "g"), "");
+
+                // show this section
+                body.classList.add(showClass);
+            }
+
+            // show a table row, hide the rest
+            function showRow(radioInput)
+            {
+                // find the closest table
+                var parentTable = radioInput.closest("table");
+
+                // prefix for other rows in the same group
+                var showClassPrefix = "show_" + radioInput.name + "_";
+
+                // the class we want to add to the table to show
+                var showClass = showClassPrefix + radioInput.value;
+
+                // hide all the other rows
+                parentTable.className = parentTable.className.replace(new RegExp(showClassPrefix + "[^\\s]+", "g"), "");
+
+                // show this row
+                parentTable.classList.add(showClass);
+            }
+
+            // add a log row
+            function addToLog(table, message, isError)
+            {
+                var row = table.insertRow(-1);
+
+                if(isError) row.classList.add("error");
+
+                row.insertCell(-1).innerText = (new Date()).toLocaleString();
+                row.insertCell(-1).innerHTML = message;
+
+            }
+
+            function copyTextarea(a)
+            {
+                navigator.clipboard.writeText(a.parentElement.querySelector("textarea").value);
+            }
+
+            function disableEnableFormElements(formObject, disable)
+            {
+                var elements = formObject.elements;
+
+                for(var i = 0, numElements = elements.length; i < numElements; ++i)
+                {
+                    elements[i].disabled = disable;
+                }
+            }
+
+            // process submission for XML to ...
+            function submit_XMLTo(formObject)
+            {
+                // get the elements
+                var formElements = formObject.elements;
+
+                // validate we have a valid source
+                switch(formElements.fromSource.value)
+                {
+                    case "xmlFile": if(!formElements.xmlFile.value) {alert("ERROR: Please select a file."); return;}; break;
+                    case "xmlInput": if(!formElements.xmlText.value) {alert("ERROR: Please enter the XML."); return;}; break;
+                    default: alert("ERROR: Please select a from."); return;
+                }
+
+                // validate we have a valid destination
+                if(!formElements.destinationType.value)
+                {
+                    alert("ERROR: Please select a destination type.");
+                    return;
+                }
+                else if(formElements.destinationType.value == "googleSheet")
+                {
+                    if(!formElements.googleSheetType.value)
+                    {
+                        alert("ERROR: Please select a Google Sheet type.");
+                        return;
+                    }
+                    else if(formElements.googleSheetType.value == "existing" && !formElements.existingSheetURL.value.trim().match(/^https:\/\/.+?google.com.+?\/[-\w]{25,}\//))
+                    {
+                        alert("ERROR: Please enter a valid Google Sheet URL.");
+                        return;
+                    }
+                }
+
+                var logTable = document.createElement("table");
+                formObject.querySelector(".log").appendChild(logTable);
+
+                addToLog(logTable, "working...");
+                
+                // send the data to GAS and do it
+                google.script.run.withSuccessHandler(ret =>
+                {
+                    if(!ret.success)
+                    {
+                        addToLog(logTable, "ERROR: " + ret.message, true);
+                    }
+                    else
+                    {
+                        addToLog(logTable, "...done");
+                        if(formElements.destinationType.value == "googleSheet")
+                        {
+                            addToLog(logTable, '<a href="' + ret.data + '" target="_blank">' + ret.data + '</a>');
+                        }
+                        else
+                        {
+                            var logHTML = '<textarea disabled="true">' + ret.data + '</textarea>';
+                            logHTML += '<br />';
+                            logHTML += '<a href="#" onclick="copyTextarea(this); return false">copy to clipboard</a>';
+                            addToLog(logTable, logHTML);
+                        }
+                    }
+                }).importXML(formObject);
+            }
+
+            function updateSheets(sheetURLInput)
+            {
+                var formObject = sheetURLInput.closest("form");
+                var sheetNamesHolders = formObject.querySelector("#sheetNamesHolders");
+                var logTable = document.createElement("table");
+                formObject.querySelector(".log").appendChild(logTable);
+                var value = sheetURLInput.value.trim();
+                sheetNamesHolders.innerHTML = "";
+
+                if(!value.match(/^https:\/\/.+?google.com.+?\/([-\w]{25,})\//))
+                {
+                    alert("ERROR: Please enter a valid Google Sheet URL.");
+                    return;
+                }
+
+                disableEnableFormElements(formObject, true);
+                addToLog(logTable, "getting sheet names...");
+
+                google.script.run.withSuccessHandler(ret =>
+                {
+                    if(!ret.success)
+                    {
+                        addToLog(logTable, "ERROR: " + ret.message, true);
+                    }
+                    else
+                    {
+                        var selectHTML = '<select name="sheetName"><option disabled selected value> -- select a sheet -- </option>';
+                        for(var i = 0, numSheets = ret.names.length; i < numSheets; ++i)
+                        {
+                            selectHTML += '<option value="' + ret.names[i] + '">' + ret.names[i] + '</option>';
+                        }
+                        selectHTML += '</select>'
+
+                        sheetNamesHolders.innerHTML = selectHTML;
+                        addToLog(logTable, "...done");
+                    }
+                    disableEnableFormElements(formObject, false);
+                }).getSheetNames(value)
+            }
+
+            function submit_toXML(formObject)
+            {
+                var formElements = formObject.elements;
+
+                switch(formElements.fromSource.value)
+                {
+                    case "googleSheet": if(!formElements.sheetName || !formElements.sheetName.value) {alert("ERROR: Please select a sheet."); return;}; break;
+                    case "csvFile": if(!formElements.csvFile.value) {alert("ERROR: Please select a file."); return;}; break;
+                    case "csvInput": if(!formElements.csvText.value) {alert("ERROR: Please enter the XML."); return;}; break;
+                    default: alert("ERROR: Please select a from."); return;
+                }
+
+                var logTable = document.createElement("table");
+                formObject.querySelector(".log").appendChild(logTable);
+
+                addToLog(logTable, "working...");
+
+                // send the data to GAS and do it
+                google.script.run.withSuccessHandler(ret =>
+                {
+                    if(!ret.success)
+                    {
+                        addToLog(logTable, "ERROR: " + ret.message, true);
+                    }
+                    else
+                    {
+                        addToLog(logTable, "...done");
+                        var logHTML = '<textarea disabled="true">' + ret.xml + '</textarea>';
+                        logHTML += '<br />';
+                        logHTML += '<a href="#" onclick="copyTextarea(this); return false">copy to clipboard</a>';
+                        addToLog(logTable, logHTML);
+                        /*
+                        addToLog(logTable, "...done");
+                        if(formElements.destinationType.value == "googleSheet")
+                        {
+                            addToLog(logTable, '<a href="' + ret.data + '" target="_blank">' + ret.data + '</a>');
+                        }
+                        else
+                        {
+                            var logHTML = '<textarea disabled="true">' + ret.data + '</textarea>';
+                            logHTML += '<br />';
+                            logHTML += '<a href="#" onclick="copyTextarea(this); return false">copy to clipboard</a>';
+                            addToLog(logTable, logHTML);
+                        }
+                        */
+                    }
+                }).exportXML(formObject);
+            }
+        </script>
+    </head>
+
+    <body>
+        <h1>pfSense FW Rules Google Sheet</h1>
+        <p>This web-app will let you:</p>
+        <ul>
+            <li>convert an XML export of pfSense's firewall rules into a CSV or Google Sheet spreadhseet</li>
+            <li>convert a CSV or Google Sheet spreadsheet of firewall rules into an XML file that pfSense can import</li>
+        </ul>
+        <p>
+            This site looks ugly. Front-end is not my thing. If you want to make it prettier, please submit a pull request or TBD.
+        </p>
+        <h2>Main Event</h2>
+        <table id="menuBar">
+            <tr>
+                <td><input type="button" value="XML to CSV/Google Sheet" name="XMLTo" onclick="showSection(this)" /></td>
+                <td><input type="button" value="CSV/Google Sheet to XML" name="toXML" onclick="showSection(this)" /></td>
+            </tr>
+        </table>
+        <div id="XMLTo">
+            <h3>XML to CSV/Google Sheet</h2>
+                <form onsubmit="submit_XMLTo(this); return false">
+                    <table class="wideTable">
+                        <tr>
+                            <th>from</th>
+                            <td>
+                                <input type="radio" onchange="showRow(this)" name="fromSource" value="xmlFile" id="XMLTo_xmlFile" /><label for="XMLTo_xmlFile">XML file upload</label><br />
+                                <input type="radio" onchange="showRow(this)" name="fromSource" value="xmlInput" id="XMLTo_xmlInput" /><label for="XMLTo_xmlInput">XML input</label><br />
+                            </td>
+                        </tr>
+                        <tr id="tableRow_fromSource_xmlFile" class="toggleRow">
+                            <th>select XML file</th>
+                            <td>
+                                <input name="xmlFile" type="file" />
+                            </td>
+                        </tr>
+                        <tr id="tableRow_fromSource_xmlInput" class="toggleRow">
+                            <th>enter XML</th>
+                            <td>
+                                <textarea name="xmlText"></textarea>
+                            </td>
+                        </tr>
+                        <tr>
+                            <th>destination type</th>
+                            <td>
+                                <input type="radio" onchange="showRow(this)" name="destinationType" value="googleSheet" id="XMLTo_googleSheet" /><label for="XMLTo_googleSheet">Google Sheet</label><br />
+                                <input type="radio" onchange="showRow(this)" name="destinationType" value="csv" id="XMLTo_csv" /><label for="XMLTo_csv">CSV</label><br />
+                            </td>
+                        </tr>
+                        <tr id="tableRow_destinationType_googleSheet" class="toggleRow">
+                            <th>Google Sheet type</th>
+                            <td>
+                                <input type="radio" onchange="showRow(this)" name="googleSheetType" value="new" id="XMLTo_new" /><label for="XMLTo_new">new</label><br />
+                                <input type="radio" onchange="showRow(this)" name="googleSheetType" value="existing" id="XMLTo_existing" /><label for="XMLTo_existing">existing</label><br />
+                            </td>
+                        </tr>
+                        <tr id="tableRow_googleSheetType_existing" class="toggleRow">
+                            <th>existing Google Sheet sheet URL</th>
+                            <td>
+                                <input type="text" name="existingSheetURL" />
+                            </td>
+                        </tr>
+                        <tr>
+                            <th>submit</th>
+                            <td>
+                                <input type="submit" value="do it" />
+                            </td>
+                        </tr>
+                        <tr>
+                            <th>log</th>
+                            <td class="log"></td>
+                        </tr>
+                    </table>
+                </form>
+        </div>
+        <div id="toXML">
+            <h3>csv/Google Sheet to XML</h2>
+                <form onsubmit="submit_toXML(this); return false">
+                    <table class="wideTable">
+                        <tr>
+                            <th>from</th>
+                            <td>
+                                <input type="radio" onchange="showRow(this)" name="fromSource" value="googleSheet" id="toXML_googleSheet" /><label for="toXML_googleSheet">Google Sheet</label><br />
+                                <input type="radio" onchange="showRow(this)" name="fromSource" value="csvFile" id="toXML_csvFile" /><label for="toXML_csvFile">CSV file upload</label><br />
+                                <input type="radio" onchange="showRow(this)" name="fromSource" value="csvInput" id="toXML_csvInput" /><label for="toXML_csvInput">CSV input</label><br />
+                            </td>
+                        </tr>
+                        <tr id="tableRow_fromSource_googleSheet" class="toggleRow">
+                            <th>Google Sheet</th>
+                            <td>
+                                <table>
+                                    <tr>
+                                        <th>URL</th>
+                                        <td>
+                                            <input type="text" name="sheetURL" onchange="updateSheets(this)" />
+                                        </td>
+                                    </tr>
+                                    <tr>
+                                        <th>sheet</th>
+                                        <td id="sheetNamesHolders"></td>
+                                    </tr>
+                                </table>
+                            </td>
+                        </tr>
+                        <tr id="tableRow_fromSource_csvFile" class="toggleRow">
+                            <th>select CSV file</th>
+                            <td>
+                                <input name="csvFile" type="file" />
+                            </td>
+                        </tr>
+                        <tr id="tableRow_fromSource_csvInput" class="toggleRow">
+                            <th>enter CSV</th>
+                            <td>
+                                <textarea name="csvText"></textarea>
+                            </td>
+                        </tr>
+                        <tr>
+                            <th>submit</th>
+                            <td>
+                                <input type="submit" value="do it" />
+                            </td>
+                        </tr>
+                        <tr>
+                            <th>log</th>
+                            <td class="log"></td>
+                        </tr>
+                    </table>
+                </form>
+        </div>
+    </body>
+
+</html>
