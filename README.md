@@ -2,9 +2,14 @@
 
 A GAS web-app to manage pfSense FW rules from a Google Sheets spreadsheet
 
-1. overview
-1. to use
-
+- [overview](#overview)
+- [screenshots](#screenshots)
+- [to use](#to-use)
+- [about the app](#about-the-app)
+- [about Google Apps Script, permissions, and security](#about-google-apps-script-permissions-and-security)
+- [self-publish](#self-publish)
+- [disclaimer](#disclaimer)
+- [contact, support, help](#contact-support-help)
 
 ## overview
 
@@ -58,3 +63,12 @@ For those who are not familiar with [Google Apps Script](https://developers.goog
 
 WIP
 
+## disclaimer
+
+Please use at your own discretion. I am not responsible for anything resulting from this app.
+
+**Remember to make a backup of your pfSense configuration.**
+
+## contact, support, help
+
+Submit a new issue at https://github.com/imthenachoman/pfSense-Firewall-Rules-Manager/issues/new.
