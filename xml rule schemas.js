@@ -3,10 +3,15 @@ const RULE_PROPERTY_XML_TYPE = {
     VALUE: "value",
     CHILD: "child",
     CDATA: "cdata",
+    ORDER: "order",
     CUSTOM: "custom"
 }
 
 const _rulePropertyXMLSchema_ = {
+    "Order": {
+        "path": "",
+        "type": RULE_PROPERTY_XML_TYPE.ORDER
+    },
     "Action": {
         "path": "type",
         "options": ["block", "pass", "reject"],
@@ -82,7 +87,7 @@ const _rulePropertyXMLSchema_ = {
 
 const _allFields_ = Object.keys(_rulePropertyXMLSchema_);
 
-function _xmlElementGet_(ruleSchema, parentElement)
+function _xmlElementGet_(ruleSchema, parentElement, index)
 {
     if(typeof ruleSchema == "string")
     {
@@ -111,6 +116,9 @@ function _xmlElementGet_(ruleSchema, parentElement)
         case "bool":
             value = element ? true : false;
             break;
+        case "order":
+            value = index + 1;
+            break;
         case "child":
             var childOptions = ruleSchema.options;
             for(var i = 0, numChildOptions = childOptions.length; i < numChildOptions; ++i)
@@ -135,7 +143,7 @@ function _xmlElementGet_(ruleSchema, parentElement)
 function _xmlElementSet_(ruleSchema, parentElement, value, valueLookup)
 {
     if(!value) return;
-
+    
     if(typeof ruleSchema == "string")
     {
         ruleSchema = {
@@ -152,6 +160,8 @@ function _xmlElementSet_(ruleSchema, parentElement, value, valueLookup)
 
     for(var i = 0, numInElementPath = elementPath.length; i < numInElementPath; ++i)
     {
+        if(!elementPath[i]) continue;
+
         if(lookupMatch = elementPath[i].match(/^{(.+?)}$/))
         {
             elementPath[i] = valueLookup(lookupMatch[1]);
@@ -174,6 +184,9 @@ function _xmlElementSet_(ruleSchema, parentElement, value, valueLookup)
         case "bool":
             // don't need to do anything for bool
             // if value is false then this function would have stopped earlier and the element would never have been created
+            break;
+        case "order":
+            // no need to do anything for order
             break;
         case "child":
             if(!element.getChild(value))

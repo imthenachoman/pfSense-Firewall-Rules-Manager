@@ -6,6 +6,7 @@ A GAS web-app to manage pfSense FW rules from a Google Sheets spreadsheet
 - [screenshots](#screenshots)
 - [to use](#to-use)
 - [how it works](#how-it-works)
+- [to do](#to-do)
 - [about Google Apps Script, permissions, and security](#about-google-apps-script-permissions-and-security)
 - [self-publish](#self-publish)
 - [disclaimer and warnings](#disclaimer-and-warnings)
@@ -44,6 +45,10 @@ You have two options:
 - the app parses pfSense's **Backup & Restore** XML file into a table
 - I recommend exporting your configuration from pfSense and then importing them with this app to see how the data is stored
 - then you can copy data from other rows to create new firewall rules
+
+## to do
+
+- download CSV/XML file
 
 ## about Google Apps Script, permissions, and security
 

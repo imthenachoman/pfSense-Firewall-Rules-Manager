@@ -1,9 +1,9 @@
 function doGet(e)
 {
     // log some data
-    Logger.log("e: " + JSON.stringify(e));
-    Logger.log("Session.getActiveUser().getEmail(): " + Session.getActiveUser().getEmail());
-    Logger.log("Session.getEffectiveUser().getEmail(): " + Session.getEffectiveUser().getEmail());
+    // Logger.log("e: " + JSON.stringify(e));
+    // Logger.log("Session.getActiveUser().getEmail(): " + Session.getActiveUser().getEmail());
+    // Logger.log("Session.getEffectiveUser().getEmail(): " + Session.getEffectiveUser().getEmail());
 
     // load the HTML file
     return HtmlService.createHtmlOutputFromFile("index");
@@ -12,7 +12,7 @@ function doGet(e)
 function importXML(formObject)
 {
     var xml, xmlText, spreadsheet, rootFilterElement, fwRules;
-    var sheetRows = [_allFields_], numFields = _allFields_.length;
+    var dataRows = [_allFields_], numFields = _allFields_.length;
 
     // get the raw XML text
     if(formObject.fromSource == "xmlFile")
@@ -76,18 +76,18 @@ function importXML(formObject)
     for(var i = 0, numRules = fwRules.length; i < numRules; ++i)
     {
         var fwRule = fwRules[i];
-        var sheetRow = [];
-        sheetRows.push(sheetRow);
+        var dataRow = [i + 1];
+        dataRows.push(dataRow);
 
         for(var j = 0; j < numFields; ++j)
         {
             var fieldName = _allFields_[j];
             var fieldToPropertyXMLSchemaMapping = _rulePropertyXMLSchema_[fieldName];
-            sheetRow[j] = _xmlElementGet_(fieldToPropertyXMLSchemaMapping, fwRule);
+            dataRow[j] = _xmlElementGet_(fieldToPropertyXMLSchemaMapping, fwRule, i);
 
-            if(formObject.destinationType == "csv" && sheetRow[j])
+            if(formObject.destinationType == "csv" && dataRow[j])
             {
-                sheetRow[j] = sheetRow[j].toString().replace(/"/g, '""');
+                dataRow[j] = dataRow[j].toString().replace(/"/g, '""');
             }
         }
     }
@@ -103,9 +103,9 @@ function importXML(formObject)
 
         sheet.deleteColumns(2, sheet.getMaxColumns() - 2);
         
-        sheet.getRange(1, 1, sheetRows.length, sheetRows[0].length).setValues(sheetRows);
-        sheet.getRange(1, 1, sheetRows.length, sheetRows[0].length).applyRowBanding(SpreadsheetApp.BandingTheme.CYAN);
-        sheet.getRange(1, 1, sheetRows.length, sheetRows[0].length).createFilter();
+        sheet.getRange(1, 1, dataRows.length, dataRows[0].length).setValues(dataRows);
+        sheet.getRange(1, 1, dataRows.length, dataRows[0].length).applyRowBanding(SpreadsheetApp.BandingTheme.CYAN);
+        sheet.getRange(1, 1, dataRows.length, dataRows[0].length).createFilter();
 
         sheet.setFrozenRows(1);
 
@@ -140,12 +140,12 @@ function importXML(formObject)
     }
     else
     {
-        for(var i = 0, numRows = sheetRows.length; i < numRows; ++i)
+        for(var i = 0, numRows = dataRows.length; i < numRows; ++i)
         {
-            sheetRows[i] = '"' + sheetRows[i].join('","') + '"'
+            dataRows[i] = '"' + dataRows[i].join('","') + '"'
         }
 
-        return {"success": true, "data": sheetRows.join("\n")};
+        return {"success": true, "data": dataRows.join("\n")};
     }
 }
 
@@ -192,37 +192,45 @@ function getSheetNames(sheetURL)
 
 function exportXML(formObject)
 {
-    var data;
+    var dataRows;
 
     switch(formObject.fromSource)
     {
         case "googleSheet":
             var fileID = formObject.sheetURL.match(/[-\w]{25,}/);
-            data = SpreadsheetApp.openById(fileID).getSheetByName(formObject.sheetName).getDataRange().getValues();
+            dataRows = SpreadsheetApp.openById(fileID).getSheetByName(formObject.sheetName).getDataRange().getValues();
             break;
         case "csvFile":
-            data = Utilities.parseCsv(formObject.csvFile.getDataAsString());
+            dataRows = Utilities.parseCsv(formObject.csvFile.getDataAsString());
             break;
         case "csvInput":
-            data = Utilities.parseCsv(formObject.csvText);
+            dataRows = Utilities.parseCsv(formObject.csvText);
             break;
     }
 
-    if(data[0].join("|") != _allFields_.join("|"))
+    if(dataRows[0].join("|") != _allFields_.join("|"))
     {
         return {"success": false, "message": "malformed/invalid data"};
     }
 
-    var headerRow = data.shift();
+    var headerRow = dataRows.shift();
     var numFields = headerRow.length;
+    var orderColumn = headerRow.indexOf("Order");
+
+    dataRows.sort((a, b) =>
+    {
+        if(a[orderColumn] == b[orderColumn]) return 0;
+        else return a[orderColumn] < b[orderColumn] ? -1 : 1;
+    });
 
     var xmlRoot = XmlService.createElement("filter");
 
-    for(var i = 0, numRows = data.length; i < numRows; ++i)
+    for(var i = 0, numRows = dataRows.length; i < numRows; ++i)
     {
-        var row = data[i];
+        var dataRow = dataRows[i];
         
-        if(!row[headerRow.indexOf("Interface")]) continue;
+        // skip rows where interface is not set
+        if(!dataRow[orderColumn]) continue;
 
         var xmlRule = XmlService.createElement("rule");
         xmlRoot.addContent(xmlRule);
@@ -232,9 +240,9 @@ function exportXML(formObject)
             var fieldName = headerRow[j];
             var fieldToPropertyXMLSchemaMapping = _rulePropertyXMLSchema_[fieldName];
 
-            _xmlElementSet_(fieldToPropertyXMLSchemaMapping, xmlRule, row[j], lookupQuery =>
+            _xmlElementSet_(fieldToPropertyXMLSchemaMapping, xmlRule, dataRow[j], lookupQuery =>
             {
-                return row[headerRow.indexOf(lookupQuery)];
+                return dataRow[headerRow.indexOf(lookupQuery)];
             });
         }
     }
