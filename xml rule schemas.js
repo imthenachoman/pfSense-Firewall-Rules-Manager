@@ -33,6 +33,7 @@ const _rulePropertyXMLSchema_ = {
         "type": RULE_PROPERTY_XML_TYPE.VALUE,
         "default": "any",
     },
+    "ICMP Type": "icmptype",
     "Source Type": {
         "path": "source",
         "options": ["any", "address", "network"],
@@ -83,6 +84,7 @@ const _rulePropertyXMLSchema_ = {
         "path": "statetype",
         "type": RULE_PROPERTY_XML_TYPE.CDATA,
     },
+    "OS": "os",
 }
 
 const _allFields_ = Object.keys(_rulePropertyXMLSchema_);
@@ -96,18 +98,18 @@ function _xmlElementGet_(ruleSchema, parentElement, index)
             "type": RULE_PROPERTY_XML_TYPE.VALUE,
         }
     }
-    
+
     var value = ruleSchema.default;
     var element = parentElement;
     var elementPath = ruleSchema.path.split("/");
-    
+
     for(var i = 0, numInElementPath = elementPath.length; i < numInElementPath; ++i)
     {
         if(lookupMatch = elementPath[i].match(/^{(.+?)}$/))
         {
             elementPath[i] = _xmlElementGet_(_rulePropertyXMLSchema_[lookupMatch[1]], parentElement);
         }
-        
+
         element = element.getChild(elementPath[i]);
     }
 
@@ -142,8 +144,8 @@ function _xmlElementGet_(ruleSchema, parentElement, index)
 
 function _xmlElementSet_(ruleSchema, parentElement, value, valueLookup)
 {
-    //if(!value) return;
-    
+    if(!value) return;
+
     if(typeof ruleSchema == "string")
     {
         ruleSchema = {
@@ -201,6 +203,6 @@ function _xmlElementSet_(ruleSchema, parentElement, value, valueLookup)
             break;
         default:
             element.setText(value);
-            
+
     }
 }
