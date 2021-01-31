@@ -144,7 +144,7 @@ function _xmlElementGet_(ruleSchema, parentElement, index)
 
 function _xmlElementSet_(ruleSchema, parentElement, value, valueLookup)
 {
-    if(!value) return;
+    // if(!value) return;
 
     if(typeof ruleSchema == "string")
     {
