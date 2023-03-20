@@ -68,7 +68,17 @@ For those who are not familiar with [Google Apps Script](https://developers.goog
 
 ## self-publish
 
-WIP
+These instructions require a little knowledge/understanding of [Google Apps Script](https://www.google.com/script/start/). There are many articles online about it if you get lost.
+
+1. Create a new script by going to [https://script.google.com/home/projects/create](https://script.google.com/home/projects/create)
+2. You will need to create 3 files in your project and copy the contents from the files in this repos:
+   - `web app.gs` => [https://github.com/imthenachoman/pfSense-Firewall-Rules-Manager/blob/main/web%20app.js](https://github.com/imthenachoman/pfSense-Firewall-Rules-Manager/blob/main/web%20app.js)
+   - `xml rule schemas.gs` => [https://github.com/imthenachoman/pfSense-Firewall-Rules-Manager/blob/main/xml%20rule%20schemas.js](https://github.com/imthenachoman/pfSense-Firewall-Rules-Manager/blob/main/xml%20rule%20schemas.js)
+   - `index.html` => [https://github.com/imthenachoman/pfSense-Firewall-Rules-Manager/blob/main/index.html](https://github.com/imthenachoman/pfSense-Firewall-Rules-Manager/blob/main/index.html)
+3. Save the project and deploy as a `web app` with these settings:
+   - `Execute as`: `User accessing the web app`
+   - `Who has access`: either option
+4. Then go to the URL of your deployed web-app.
 
 ## disclaimer and warnings
 
